@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "amap-rs"
+version = "0.0.1"
+authors = [
+  { name="Paul Tresson", email="paul.tresson@ird.fr" },
+]
+description = "Tool collection for DL and RS in AMAP"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/umr-amap/amap-rs"
+Issues = "https://github.com/umr-amap/amap-rs/issues"
