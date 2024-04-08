@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "amap-rs"
+name = "amaprs"
 # dynamic = ["version"]
 version="0.0.1"
 authors = [
