@@ -8,6 +8,7 @@ name = "amaprs"
 version="0.0.1"
 authors = [
   { name="Paul Tresson", email="paul.tresson@ird.fr" },
+  { name="Hadrien Tulet", email="hadrien.tulet@ird.fr" },
 ]
 description = "Tool collection for DL and RS in AMAP"
 readme = "README.md"
