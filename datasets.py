@@ -158,22 +158,3 @@ class CustomLabelDataset(Dataset):
 # class CustomDataset(RasterDataset):
 #     filename_glob = "*.tif"
 #     is_image = True
-
-
-if __name__ == "__main__":
-    
-
-    gdf = gpd.read_file("~/congo/pointages/22_10_19_pointages.shp", driver='ESRI Shapefile')
-    print(gdf)
-    class CustomDataset(ROIDataset):
-        filename_glob = "1959.tif"
-    dataset = CustomDataset(
-            root="/home/ptresson/congo/",
-            gdf=gdf,
-            target_var='C_ID',
-            transforms=None,
-            size=112,
-            )
-    sample = dataset.__getitem__(0)
-    print(sample)
-    print(dataset.__len__())
