@@ -4,7 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "amap-rs"
-dynamic = ["version"]
+# dynamic = ["version"]
+version="0.0.1"
 authors = [
   { name="Paul Tresson", email="paul.tresson@ird.fr" },
 ]
