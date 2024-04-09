@@ -40,7 +40,7 @@ class ROIDataset(RasterDataset):
             gdf: gpd.GeoDataFrame, 
             target_var: str, 
             target_indexes: Optional[List] = None,
-            size: Union[Tuple[float, float], float] = 1,
+            size: Union[Tuple[float, float], float] = 100,
             units: Units = Units.PIXELS,
             crs: Optional[CRS] = None,
             res: Optional[float] = None,
