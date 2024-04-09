@@ -15,6 +15,7 @@ import timm
 
 # torchgeo
 from torchgeo.transforms import AugmentationSequential
+from torchgeo.datasets import stack_samples
 
 # geo
 import geopandas as gpd
