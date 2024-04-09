@@ -30,9 +30,9 @@ import matplotlib.pyplot as plt
 warnings.filterwarnings("ignore")
 
 # custom modules
-from datasets import ROIDataset
-from utils.dl import check_false_dim, convert_classes_to_idx
-from utils.geo import get_random_points_on_raster_template, get_geo_folds, get_mean_sd_by_band
+from .datasets import ROIDataset
+from .utils.dl import check_false_dim, convert_classes_to_idx
+from .utils.geo import get_random_points_on_raster_template, get_geo_folds, get_mean_sd_by_band
 
 
 def train_loop(

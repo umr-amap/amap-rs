@@ -20,8 +20,8 @@ import numpy as np
 warnings.filterwarnings("ignore")
 
 # custom modules
-from utils.geo import change_tif_resolution
-from utils.geo import array_to_geotiff
+from .utils.geo import change_tif_resolution
+from .utils.geo import array_to_geotiff
 
 
 def inference(

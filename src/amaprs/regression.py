@@ -29,11 +29,10 @@ import umap.umap_ as umap
 warnings.filterwarnings("ignore")
 
 # custom modules
-from datasets import ROIDataset
-from utils.dl import check_false_dim
-from utils.geo import get_geo_folds, get_mean_sd_by_band, get_random_points_on_raster
-from utils.misc import get_colors_for_values
-from custom_datasets import *
+from .datasets import ROIDataset
+from .utils.dl import check_false_dim
+from .utils.geo import get_geo_folds, get_mean_sd_by_band, get_random_points_on_raster
+from .utils.misc import get_colors_for_values
 
 
 def train_loop(

@@ -23,8 +23,8 @@ from sklearn.cluster import KMeans
 warnings.filterwarnings("ignore")
 
 # custom modules
-from utils.geo import change_tif_resolution
-from utils.geo import array_to_geotiff
+from .utils.geo import change_tif_resolution
+from .utils.geo import array_to_geotiff
 
 
 def get_features(
