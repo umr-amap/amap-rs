@@ -141,6 +141,7 @@ def train_kfold(
         means=None,
         sds=None,
         device=None,
+        dataset_kwargs={},
         ):
 
     if device==None:
@@ -213,6 +214,7 @@ def train_kfold(
                 target_var=target_variable, 
                 target_indexes=train_indexes,
                 transforms = train_transform,
+                **dataset_kwargs,
                 )
         test_dataset = CustomROIDataset(
                 naip_root, 
@@ -220,6 +222,7 @@ def train_kfold(
                 target_var=target_variable, 
                 target_indexes=test_indexes,
                 transforms = test_transform,
+                **dataset_kwargs,
                 )
 
         ## init via timm
