@@ -197,7 +197,7 @@ def train_kfold(
         test_indexes = gdf[gdf[fold_col]== fold].index
 
         train_dataset = CustomROIDataset(
-                naip_root, 
+                img_dir, 
                 gdf, 
                 target_var=target_variable, 
                 target_indexes=train_indexes,
@@ -205,7 +205,7 @@ def train_kfold(
                 **dataset_kwargs,
                 )
         test_dataset = CustomROIDataset(
-                naip_root, 
+                img_dir, 
                 gdf, 
                 target_var=target_variable, 
                 target_indexes=test_indexes,
