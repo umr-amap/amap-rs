@@ -547,9 +547,9 @@ def get_geo_folds(gdf,
         print('please check that all geometry are valid')
 
     X = []
-    for row in gdf.iterrows():
-        index, data = row
-        X.append([data.geometry.y, data.geometry.x])
+    # create centroids if geometry is different than points
+    for index, data in gdf.iterrows():
+        X.append([data.geometry.centroid.y, data.geometry.centroid.x])
 
     X = np.array(X)
     kmeans = KMeans(n_clusters=nfolds, random_state=seed).fit(X.astype('double'))
