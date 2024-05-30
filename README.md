@@ -12,7 +12,13 @@ install should work via
 pip install git+https://github.com/umr-amap/amap-rs.git
 ```
 
-The functioning via pip install has not been tested yet.
+## Update
+
+for now, update works via reinstall, as releases are done with simple merges from dev branch (i.e. no version number)
+
+```
+pip install -U --force-reinstall git+https://github.com/umr-amap/amap-rs.git
+```
 
 ## Dependencies
 
