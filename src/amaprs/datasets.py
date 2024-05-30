@@ -130,9 +130,6 @@ class ROIDataset(RasterDataset):
         gt = self.gdf.iloc[idx][self.target_var]
 
         sample = super().__getitem__(query)
-
-        if self.transforms is not None:
-            sample = self.transforms(sample)
         
         sample["gt"] = gt
 
