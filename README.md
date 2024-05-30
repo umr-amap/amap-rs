@@ -17,3 +17,11 @@ The functioning via pip install has not been tested yet.
 ## Dependencies
 
 Main depencies are `torchgeo`, `timm`, `umap-learn` and `scikit-learn`. All other dependencies come from these.
+
+## Developpement
+
+you can install a local version of the plugin via 
+
+```
+pip install -e path/to/this/repo
+```

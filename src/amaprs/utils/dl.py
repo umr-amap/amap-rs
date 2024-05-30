@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import itertools
 from collections import OrderedDict
 import timm
 import pandas as pd
@@ -94,6 +95,18 @@ class EarlyStopper:
             if self.counter >= self.patience:
                 return True
         return False
+
+class MergedDataLoader:
+    def __init__(self, *dataloaders):
+        self.dataloaders = dataloaders
+        self.dataset = None  # You may need to define a custom dataset for this
+
+    def __iter__(self):
+        return itertools.chain(*[iter(dataloader) for dataloader in self.dataloaders])
+
+    def __len__(self):
+        return sum(len(dataloader) for dataloader in self.dataloaders)
+
 
 def check_empty(tensor):
     """
