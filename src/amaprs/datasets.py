@@ -31,85 +31,83 @@ def intersects_with_img(roi, file_list):
                 break      
     return res
 
+def get_intersected_bboxes(root, filename_glob, gdf):
+    pathname = os.path.join(root, "**", filename_glob)
+    file_list = []
+    for filepath in glob.iglob(pathname, recursive=True):
+        file_list.append(filepath)
+    return gdf.loc[[intersects_with_img(gdf['bboxes'][i], file_list) for i in gdf.index]]
+
+
+def polygon_to_bbox(polygon, dataset):
+    bounds = list(polygon.bounds)
+    bounds[1], bounds[2] = bounds[2], bounds[1]
+    # keeping temporal coordinates from raster dataset
+    return BoundingBox(*bounds, dataset.index.bounds[4] , dataset.index.bounds[5])
+
+
+def prepare_datasets(datasets, gdf, target_variable, buffer_size=100):
+    """
+    Ensures that all points in the geodataframe has a buffer and intersects with raster images.
+
+    Args:
+        datasets: RasterDataset or list of RasterDatasets.
+        gdf: GeoDataFrame.
+        target_variable: column name of the target variable or list of column names.
+        buffer_size: size (in meters) of the buffer created around the point if geometry is a point.
+
+    Returns:
+        intersection dataset of the dataset and filtered geodataframe.
+    """
+
+    ## temporally convert to list
+    if not isinstance(datasets, list):
+        datasets = [datasets]
+
+    gdf = gdf.loc[gdf['geometry']!=None]
+    gdf = gdf.to_crs(datasets[0].crs)
+    gdf = gdf.drop_duplicates()
+
+    # gdf = gdf.dropna(subset=[target_variable])
+    if isinstance(target_variable, list):
+        for variable in target_variable:
+            gdf = gdf.dropna(subset=[variable])
+    else :
+        gdf = gdf.dropna(subset=[target_variable])
+
+    # if geodataframe has points, convert to square with buffer of self.size meters
+    if gdf.geom_type.unique() == "Point":
+        gdf.geometry = gdf.buffer(buffer_size, cap_style = 3)
+
+    gdf['bboxes'] = [polygon_to_bbox(gdf['geometry'][i], datasets[0]) for i in gdf.index]
+
+    for i, dataset in enumerate(datasets):
+        if i == 0:
+            current_dataset = dataset
+        else:
+            current_dataset = current_dataset & dataset
+
+        gdf = get_intersected_bboxes(dataset.paths, dataset.filename_glob, gdf)
+
+    return current_dataset, gdf
+
 
 class ROIDataset(RasterDataset):
 
     def __init__(
             self, 
-            root: str,
+            raster_dataset: RasterDataset,
             gdf: gpd.GeoDataFrame, 
-            target_var: str, 
-            target_indexes: Optional[List] = None,
-            size: Union[Tuple[float, float], float] = 100,
-            units: Units = Units.PIXELS,
-            crs: Optional[CRS] = None,
-            res: Optional[float] = None,
-            bands: Optional[Sequence[str]] = None,
+            target_var, 
             transforms: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None,
-            cache: bool = True,
+            bboxes_col:str = 'bboxes',
             ):
 
-        super().__init__(
-                root,
-                crs,
-                res,
-                bands,
-                transforms,
-                cache,
-                )
-        
-        self.root = root
+        self.dataset = raster_dataset
         self.target_var = target_var
-        self.size = _to_tuple(size)
-        self.units = units
-        # convert to meters
-        if units == Units.PIXELS:
-            self.size = (self.size[0] * self.res, self.size[1] * self.res)
-        self.target_indexes = target_indexes
-        self.gdf = self._prepare_gdf(gdf)
-        self.rois = self.gdf['bboxes']
-
-
-
-    def _polygon_to_bbox(self, polygon):
-        bounds = list(polygon.bounds)
-        bounds[1], bounds[2] = bounds[2], bounds[1]
-        # keeping temporal coordinates from raster dataset
-        return BoundingBox(*bounds, self.index.bounds[4], self.index.bounds[5])
-    
-    def _get_intersected_bboxes(self, gdf):
-        pathname = os.path.join(self.root, "**", self.filename_glob)
-        file_list = []
-        for filepath in glob.iglob(pathname, recursive=True):
-            file_list.append(filepath)
-        return gdf.loc[[intersects_with_img(gdf['bboxes'][i], file_list) for i in gdf.index]]
-
-
-    def _prepare_gdf(self, gdf):
-
-        # select indexes
-        if self.target_indexes is not None:
-            gdf = gdf.iloc[self.target_indexes]
-
-        # remove false geometries
-        gdf = gdf.loc[gdf['geometry']!=None]
-        gdf = gdf.to_crs(self.crs)
-        gdf = gdf.drop_duplicates()
-        # remove nas in target variable
-        gdf = gdf.dropna(subset=[self.target_var])
-
-        # if geodataframe has points, convert to square with buffer of self.size meters
-        if gdf.geom_type.unique() == "Point":
-            gdf.geometry = gdf.buffer(self.size[0], cap_style = 3)
-
-        # only conserves rois which intersect with the images from the dataset
-        gdf['bboxes'] = [self._polygon_to_bbox(gdf['geometry'][i]) for i in gdf.index]
-        gdf = self._get_intersected_bboxes(gdf)
-
-        # reorder indexes to iterate easily in dataloader
-        gdf.index = [i for i in range(len(gdf))]
-
-        return(gdf)
+        self.gdf = gdf
+        self.transforms = transforms
+        self.bboxes_col = bboxes_col
 
     def __len__(self):
         return len(self.gdf)
@@ -126,12 +124,20 @@ class ROIDataset(RasterDataset):
         Raises:
             IndexError: if query is not found in the index
         """
-        query = self.gdf.iloc[idx]['bboxes']
-        gt = self.gdf.iloc[idx][self.target_var]
+        query = self.gdf.iloc[idx][self.bboxes_col]
+        # gt = self.gdf.iloc[idx][self.target_var]
 
-        sample = super().__getitem__(query)
+        # sample = super().__getitem__(query)
+        sample = self.dataset[query]
+
+        if self.transforms is not None:
+            sample = self.transforms(sample)
         
-        sample["gt"] = gt
+        if isinstance(self.target_var, list):
+            for gt in self.target_var:
+                sample[gt] = self.gdf.iloc[idx][gt]
+        else :
+            sample[self.target_var] = self.gdf.iloc[idx][self.target_var]
 
         return sample
 
